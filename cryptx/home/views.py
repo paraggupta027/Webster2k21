@@ -40,9 +40,40 @@ def signuphandle(request):
                 return redirect('home')
 
         if password==cpassword:
-            user = User.objects.create_user(fname,email,password)
+            user = User.objects.create_user(username=email,password = password)
             user.first_name = fname
             user.last_name = lname
             user.save()
+            print("saved")
     
         return render(request,'home/index.html')
+
+def logout_user(request):
+    logout(request)
+    return redirect('home')
+
+def login_page(request):
+    user=request.user
+    if user.is_authenticated:
+        return redirect('dashboard')
+    
+    if request.method=='POST':
+        email = request.POST.get('email',"")
+        password = request.POST.get('password',"")
+
+        cur_user = User.objects.filter(username=email)
+        if  len(cur_user)==0:
+            print("No such user")
+            return redirect('signup')
+
+        cur_user=cur_user[0]
+        if cur_user.password!=password:
+            print("Passwords didn't matched")
+            return redirect('login_page')
+
+        user = authenticate(username=email,password=password)
+        if user:
+            login(request,user)
+            return redirect('dashboard')
+
+    return render(request,'home/login.html')
