@@ -46,7 +46,8 @@ def signuphandle(request):
                 print("Email already taken")
                 return redirect('home')
 
-        new_user = User.objects.create_user(fname,email,password)
+        new_user = User.objects.create_user(username=email,password=password)
+        new_user.email=email
         new_user.first_name = fname
         new_user.last_name = lname
         new_user.save()
@@ -70,21 +71,16 @@ def login_page(request):
         password = request.POST.get('password',"")
 
         cur_user = User.objects.filter(username=email)
-        if not cur_user:
+        if  len(cur_user)==0:
             print("No such user")
             return redirect('signup')
-
-        cur_user=cur_user[0]
-        if cur_user.password!=password:
-            print("Passwords didn't matched")
-            return redirect('login_page')
 
         user = authenticate(username=email,password=password)
         if user:
             login(request,user)
             return redirect('dashboard')
 
-    return render(request,'login.html')
+    return render(request,'home/login.html')
 
 
 def logout_user(request):
